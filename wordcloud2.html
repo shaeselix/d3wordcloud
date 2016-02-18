@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Wordcloud</title>
+		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+        <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+		<script type="text/javascript" src="d3.layout.cloud.js"></script>
+		<script type="text/javascript" src="wordlist.js"></script>
+		<style type="text/css">
+		
+
+		</style>
+    </head>
+    <body>
+	    <tr>
+		    <label for="nwords"><h3>Number of words to show:</h3></label>
+            0<input type="range" id="nwords" value="50" min="0" max="100">100
+        </tr>
+        <script type="text/javascript">
+            var pad = 20
+			var w = window.innerWidth - pad;
+            var h = window.innerHeight - pad;
+			var fill = d3.scale.category20();
+			var nwords = document.getElementById('nwords')
+			var N = nwords.value
+			var mywords = []
+			for (i=0; i<N; i++) {
+				mywords.push(wordlist[i])
+			}
+			var mycloud = d3.layout.cloud().size([w, h])
+				  .words(mywords.map(function(d) {
+					return {text: d.word, size: d.count};//10 + Math.random() * w / 5};
+				  }))
+				  .rotate(function() { return ~~(Math.random() * 2) * 90; })
+				  .font("Impact")
+				  .fontSize(function(d) { return d.size; })
+				  .on("end", draw)
+				  .start();
+
+			function draw(words) {
+				d3.select("body").append("svg")
+					.attr("width", w)
+					.attr("height", h)
+				  .append("g")
+					.attr("transform", "translate(" + (w>>1).toString() + "," + (h>>1).toString() + ")")
+				  .selectAll("text")
+					.data(words)
+				  .enter().append("text")
+					.style("font-size", function(d) { return d.size + "px"; })
+					.style("font-family", "Impact")
+					.style("fill", function(d, i) { return fill(i); })
+					.attr("text-anchor", "middle")
+					.attr("transform", function(d) {
+					  return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+					})
+					.text(function(d) { return d.text; });
+			  }
+			  
+			  $("#nwords").on("input change", function() {
+			    $("svg").remove();
+				w = window.innerWidth - pad;
+                h = window.innerHeight - pad;
+			    fill = d3.scale.category20();
+			    N = nwords.value
+			    mywords = []
+			    for (i=0; i<N; i++) {
+				    mywords.push(wordlist[i])
+			    }
+			    mycloud.size([w, h])
+				  .words(mywords.map(function(d) {
+					return {text: d.word, size: d.count};//10 + Math.random() * w / 5};
+				  }))
+				  .rotate(function() { return ~~(Math.random() * 2) * 90; })
+				  .font("Impact")
+				  .fontSize(function(d) { return d.size; })
+				  .on("end", draw)
+				  .start();
+			        console.log(nwords.value);
+    //do something
+				});
+
+        </script>
+    </body>
+</html>
